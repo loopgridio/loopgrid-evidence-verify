@@ -1,2 +1,0 @@
-cryptography>=42,<47
-asn1crypto>=1.5,<2
