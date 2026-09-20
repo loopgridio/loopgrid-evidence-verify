@@ -34,11 +34,11 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Install verifier dependencies
+    - name: Install canonical LoopGrid verifier
       shell: bash
       run: |
         set -euo pipefail
-        python3 -m pip install --disable-pip-version-check -q -r "$GITHUB_ACTION_PATH/requirements.txt"
+        python3 -m pip install --disable-pip-version-check -q "loopgrid-verify==0.1.0"
 
     - name: Verify LoopGrid evidence
       id: verify
@@ -56,13 +56,6 @@ runs:
           exit 2
         fi
 
-        VERIFIER="$GITHUB_ACTION_PATH/verifier/loopgrid_verify.py"
-
-        if [ ! -f "$VERIFIER" ]; then
-          echo "::error::LoopGrid verifier is missing: $VERIFIER"
-          exit 2
-        fi
-
         args=("$INPUT_EVIDENCE")
 
         if [ -n "$INPUT_EXPECTED_KEY_ID" ]; then
@@ -77,7 +70,6 @@ runs:
           args+=(--tsa-ca-file "$INPUT_TSA_CA_FILE")
         fi
 
-        echo "LoopGrid Evidence Verification"
-        python3 "$VERIFIER" "${args[@]}"
+        loopgrid-verify "${args[@]}"
 
         echo "result=VERIFIED" >> "$GITHUB_OUTPUT"
